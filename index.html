@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WA Flow Sender</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <main class="app">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Consent-based WhatsApp Outreach Tool</p>
+        <h1>WA Flow Sender</h1>
+        <p class="subtitle">用 wa.me 快速建立 WhatsApp 訊息連結，適合活動通知、客戶跟進、校友/義工聯絡等合法用途。</p>
+      </div>
+      <div class="hero-card">
+        <span id="totalCount">0</span>
+        <small>Recipients</small>
+      </div>
+    </header>
+
+    <section class="notice">
+      <strong>使用提醒：</strong>
+      只可發送予已同意接收訊息的人士。此工具不會繞過 WhatsApp，也不會自動替你按下「發送」；它只會按設定間隔開啟 wa.me 訊息草稿。
+    </section>
+
+    <section class="toolbar">
+      <button class="ghost" id="demoBtn">載入 Demo</button>
+      <button class="ghost" id="clearBtn">清除資料</button>
+      <button class="ghost" id="exportBtn">匯出發送記錄</button>
+      <label class="file-label">
+        匯入 CSV
+        <input type="file" id="csvInput" accept=".csv,text/csv" />
+      </label>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>訊息內容</h2>
+          <span id="charCount">0 字</span>
+        </div>
+
+        <textarea id="messageInput" placeholder="輸入訊息內容，例如：&#10;你好 {{name}}，提提你明天的活動將於下午 2 時開始。&#10;&#10;詳情請查看："></textarea>
+
+        <div class="template-row">
+          <button data-template="event">活動通知</button>
+          <button data-template="follow">客戶跟進</button>
+          <button data-template="festival">節日祝福</button>
+          <button data-template="promo">宣傳推廣</button>
+        </div>
+
+        <div class="preview">
+          <h3>預覽</h3>
+          <div id="previewBox">請先輸入訊息內容</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>電話號碼清單</h2>
+          <span>每行一位</span>
+        </div>
+
+        <textarea id="recipientsInput" placeholder="格式：&#10;85291234567, Chan Tai Man, ABC Company&#10;85298765432, Wong Siu Ming&#10;&#10;支援欄位：電話, 姓名, 公司"></textarea>
+
+        <div class="stats">
+          <div><strong id="validCount">0</strong><span>有效</span></div>
+          <div><strong id="duplicateCount">0</strong><span>重複</span></div>
+          <div><strong id="invalidCount">0</strong><span>無效</span></div>
+        </div>
+
+        <div class="settings">
+          <label>
+            發送間隔（秒）
+            <input type="number" id="intervalInput" min="1" max="60" value="3" />
+          </label>
+          <label>
+            開啟方式
+            <select id="targetMode">
+              <option value="tab">新分頁</option>
+              <option value="same">同一分頁</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" id="consentCheck" />
+          我確認清單內人士已同意接收相關 WhatsApp 訊息
+        </label>
+
+        <div class="actions">
+          <button class="primary" id="startBtn">開始開啟 wa.me</button>
+          <button id="pauseBtn">暫停</button>
+          <button id="stopBtn">停止</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel progress-panel">
+      <div class="panel-head">
+        <h2>發送進度</h2>
+        <span id="statusText">未開始</span>
+      </div>
+      <div class="progress">
+        <div id="progressBar"></div>
+      </div>
+      <div class="log" id="logBox"></div>
+    </section>
+
+    <footer>
+      <p>Built for GitHub Pages · Static HTML/CSS/JS · wa.me Link Generator</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
