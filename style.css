@@ -360,3 +360,156 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+.page-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #062116;
+  border-color: transparent;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+.template-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 8px;
+}
+
+.template-tools strong {
+  display: block;
+}
+
+.template-tools small,
+.helper-text,
+.empty-text {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.settings-grid {
+  align-items: start;
+}
+
+.helper-text {
+  margin: -2px 0 16px;
+}
+
+code {
+  background: rgba(37, 211, 102, 0.12);
+  color: #d6fbe4;
+  border: 1px solid rgba(37, 211, 102, 0.2);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+.template-list {
+  display: grid;
+  gap: 12px;
+  max-height: 620px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.template-item,
+.empty-card,
+.template-preview-card {
+  border: 1px solid var(--line);
+  background: rgba(4, 10, 18, 0.38);
+  border-radius: 20px;
+  padding: 15px;
+}
+
+.template-item {
+  display: grid;
+  gap: 12px;
+}
+
+.template-item h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.template-item p {
+  margin: 0;
+  color: #dbeafe;
+  line-height: 1.55;
+  max-height: 115px;
+  overflow: auto;
+}
+
+.template-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form-label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.template-editor {
+  min-height: 240px;
+}
+
+.template-preview-card {
+  margin-bottom: 14px;
+}
+
+.template-preview-card h3 {
+  margin: 0 0 10px;
+}
+
+#templatePreviewBox {
+  white-space: pre-wrap;
+  color: #dbeafe;
+  line-height: 1.55;
+}
+
+.danger-btn {
+  color: #ffd2d2;
+  border-color: rgba(255, 107, 107, 0.45);
+  background: rgba(255, 107, 107, 0.12);
+}
+
+.danger-btn:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+@media (max-width: 860px) {
+  .template-tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .page-tabs button,
+  .template-tools button {
+    width: 100%;
+  }
+}

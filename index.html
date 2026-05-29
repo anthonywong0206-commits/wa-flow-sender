@@ -28,88 +28,140 @@
       只可發送予已同意接收訊息的人士。此工具不會繞過 WhatsApp，也不會自動替你按下「發送」；它只會按設定間隔開啟 wa.me 訊息草稿。
     </section>
 
-    <section class="toolbar">
-      <button class="ghost" id="demoBtn">載入 Demo</button>
-      <button class="ghost" id="clearBtn">清除資料</button>
-      <button class="ghost" id="exportBtn">匯出發送記錄</button>
-      <label class="file-label">
-        匯入 CSV
-        <input type="file" id="csvInput" accept=".csv,text/csv" />
-      </label>
-    </section>
+    <nav class="page-tabs" aria-label="頁面切換">
+      <button class="tab-btn active" data-page="senderPage">訊息發送</button>
+      <button class="tab-btn" data-page="settingsPage">設定／常用模板</button>
+    </nav>
 
-    <section class="grid">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>訊息內容</h2>
-          <span id="charCount">0 字</span>
-        </div>
-
-        <textarea id="messageInput" placeholder="輸入訊息內容，例如：&#10;你好 {{name}}，提提你明天的活動將於下午 2 時開始。&#10;&#10;詳情請查看："></textarea>
-
-        <div class="template-row">
-          <button data-template="event">活動通知</button>
-          <button data-template="follow">客戶跟進</button>
-          <button data-template="festival">節日祝福</button>
-          <button data-template="promo">宣傳推廣</button>
-        </div>
-
-        <div class="preview">
-          <h3>預覽</h3>
-          <div id="previewBox">請先輸入訊息內容</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>電話號碼清單</h2>
-          <span>每行一位</span>
-        </div>
-
-        <textarea id="recipientsInput" placeholder="格式：&#10;85291234567, Chan Tai Man, ABC Company&#10;85298765432, Wong Siu Ming&#10;&#10;支援欄位：電話, 姓名, 公司"></textarea>
-
-        <div class="stats">
-          <div><strong id="validCount">0</strong><span>有效</span></div>
-          <div><strong id="duplicateCount">0</strong><span>重複</span></div>
-          <div><strong id="invalidCount">0</strong><span>無效</span></div>
-        </div>
-
-        <div class="settings">
-          <label>
-            發送間隔（秒）
-            <input type="number" id="intervalInput" min="1" max="60" value="3" />
-          </label>
-          <label>
-            開啟方式
-            <select id="targetMode">
-              <option value="tab">新分頁</option>
-              <option value="same">同一分頁</option>
-            </select>
-          </label>
-        </div>
-
-        <label class="consent">
-          <input type="checkbox" id="consentCheck" />
-          我確認清單內人士已同意接收相關 WhatsApp 訊息
+    <section id="senderPage" class="page active">
+      <section class="toolbar">
+        <button class="ghost" id="demoBtn">載入 Demo</button>
+        <button class="ghost" id="clearBtn">清除資料</button>
+        <button class="ghost" id="exportBtn">匯出發送記錄</button>
+        <label class="file-label">
+          匯入 CSV
+          <input type="file" id="csvInput" accept=".csv,text/csv" />
         </label>
+      </section>
 
-        <div class="actions">
-          <button class="primary" id="startBtn">開始開啟 wa.me</button>
-          <button id="pauseBtn">暫停</button>
-          <button id="stopBtn">停止</button>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>訊息內容</h2>
+            <span id="charCount">0 字</span>
+          </div>
+
+          <textarea id="messageInput" placeholder="輸入訊息內容，例如：&#10;你好 {{name}}，提提你明天的活動將於下午 2 時開始。&#10;&#10;詳情請查看："></textarea>
+
+          <div class="template-tools">
+            <div>
+              <strong>快速模板</strong>
+              <small>可到「設定」新增、修改或刪除</small>
+            </div>
+            <button class="ghost small-btn" id="goSettingsBtn">管理模板</button>
+          </div>
+          <div class="template-row" id="templateRow"></div>
+
+          <div class="preview">
+            <h3>預覽</h3>
+            <div id="previewBox">請先輸入訊息內容</div>
+          </div>
         </div>
-      </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>電話號碼清單</h2>
+            <span>每行一位</span>
+          </div>
+
+          <textarea id="recipientsInput" placeholder="格式：&#10;85291234567, Chan Tai Man, ABC Company&#10;85298765432, Wong Siu Ming&#10;&#10;支援欄位：電話, 姓名, 公司"></textarea>
+
+          <div class="stats">
+            <div><strong id="validCount">0</strong><span>有效</span></div>
+            <div><strong id="duplicateCount">0</strong><span>重複</span></div>
+            <div><strong id="invalidCount">0</strong><span>無效</span></div>
+          </div>
+
+          <div class="settings">
+            <label>
+              發送間隔（秒）
+              <input type="number" id="intervalInput" min="1" max="60" value="3" />
+            </label>
+            <label>
+              開啟方式
+              <select id="targetMode">
+                <option value="tab">新分頁</option>
+                <option value="same">同一分頁</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" id="consentCheck" />
+            我確認清單內人士已同意接收相關 WhatsApp 訊息
+          </label>
+
+          <div class="actions">
+            <button class="primary" id="startBtn">開始開啟 wa.me</button>
+            <button id="pauseBtn">暫停</button>
+            <button id="stopBtn">停止</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel progress-panel">
+        <div class="panel-head">
+          <h2>發送進度</h2>
+          <span id="statusText">未開始</span>
+        </div>
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+        <div class="log" id="logBox"></div>
+      </section>
     </section>
 
-    <section class="panel progress-panel">
-      <div class="panel-head">
-        <h2>發送進度</h2>
-        <span id="statusText">未開始</span>
-      </div>
-      <div class="progress">
-        <div id="progressBar"></div>
-      </div>
-      <div class="log" id="logBox"></div>
+    <section id="settingsPage" class="page">
+      <section class="grid settings-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>常用訊息模板</h2>
+            <span id="templateCount">0 個模板</span>
+          </div>
+          <p class="helper-text">模板支援變數：<code>{{name}}</code>、<code>{{phone}}</code>、<code>{{company}}</code>。修改後會即時同步到主頁的快速模板。</p>
+          <div class="template-list" id="templateList"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 id="templateFormTitle">新增模板</h2>
+            <span>Template Editor</span>
+          </div>
+
+          <input type="hidden" id="templateIdInput" />
+
+          <label class="form-label">
+            模板名稱
+            <input type="text" id="templateNameInput" placeholder="例如：活動提醒" />
+          </label>
+
+          <label class="form-label">
+            模板內容
+            <textarea id="templateContentInput" class="template-editor" placeholder="輸入模板內容，例如：&#10;你好 {{name}}，提提你明天活動將於下午 2 時開始。"></textarea>
+          </label>
+
+          <div class="template-preview-card">
+            <h3>模板預覽</h3>
+            <div id="templatePreviewBox">請輸入模板內容</div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="saveTemplateBtn">儲存模板</button>
+            <button id="resetTemplateFormBtn">新增另一個</button>
+            <button class="danger-btn" id="resetDefaultTemplatesBtn">還原預設模板</button>
+          </div>
+        </div>
+      </section>
     </section>
 
     <footer>

@@ -16,19 +16,56 @@ const progressBar = document.getElementById("progressBar");
 const statusText = document.getElementById("statusText");
 const logBox = document.getElementById("logBox");
 const csvInput = document.getElementById("csvInput");
+const templateRow = document.getElementById("templateRow");
+const templateList = document.getElementById("templateList");
+const templateCount = document.getElementById("templateCount");
+const templateFormTitle = document.getElementById("templateFormTitle");
+const templateIdInput = document.getElementById("templateIdInput");
+const templateNameInput = document.getElementById("templateNameInput");
+const templateContentInput = document.getElementById("templateContentInput");
+const templatePreviewBox = document.getElementById("templatePreviewBox");
+const saveTemplateBtn = document.getElementById("saveTemplateBtn");
+const resetTemplateFormBtn = document.getElementById("resetTemplateFormBtn");
+const resetDefaultTemplatesBtn = document.getElementById("resetDefaultTemplatesBtn");
+const goSettingsBtn = document.getElementById("goSettingsBtn");
 
 let queue = [];
 let currentIndex = 0;
 let timer = null;
 let isPaused = false;
 let logs = [];
+let templates = [];
 
-const templates = {
-  event: "你好 {{name}}，提提你活動將於明天舉行。\n\n時間：下午 2:00\n地點：請參閱活動通知\n\n如有查詢，歡迎回覆此訊息。謝謝！",
-  follow: "你好 {{name}}，多謝你早前查詢 {{company}} 的資料。\n\n我想跟進一下你是否需要進一步協助？",
-  festival: "你好 {{name}}，祝你節日快樂！\n\n願你和家人身體健康、生活愉快 😊",
-  promo: "你好 {{name}}，我們現正推出最新活動／服務資訊。\n\n有興趣了解更多，可直接回覆此訊息。"
-};
+const DEFAULT_TEMPLATES = [
+  {
+    id: "event",
+    name: "活動通知",
+    content: "你好 {{name}}，提提你活動將於明天舉行。\n\n時間：下午 2:00\n地點：請參閱活動通知\n\n如有查詢，歡迎回覆此訊息。謝謝！"
+  },
+  {
+    id: "follow",
+    name: "客戶跟進",
+    content: "你好 {{name}}，多謝你早前查詢 {{company}} 的資料。\n\n我想跟進一下你是否需要進一步協助？"
+  },
+  {
+    id: "festival",
+    name: "節日祝福",
+    content: "你好 {{name}}，祝你節日快樂！\n\n願你和家人身體健康、生活愉快 😊"
+  },
+  {
+    id: "promo",
+    name: "宣傳推廣",
+    content: "你好 {{name}}，我們現正推出最新活動／服務資訊。\n\n有興趣了解更多，可直接回覆此訊息。"
+  }
+];
+
+function cloneDefaultTemplates() {
+  return DEFAULT_TEMPLATES.map(template => ({ ...template }));
+}
+
+function generateId() {
+  return `tpl_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
 
 function saveState() {
   localStorage.setItem("waFlowState", JSON.stringify({
@@ -47,6 +84,35 @@ function loadState() {
     recipientsInput.value = state.recipients || "";
     intervalInput.value = state.interval || 3;
   } catch {}
+}
+
+function loadTemplates() {
+  const raw = localStorage.getItem("waFlowTemplates");
+  if (!raw) {
+    templates = cloneDefaultTemplates();
+    saveTemplates();
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      templates = cloneDefaultTemplates();
+    } else {
+      templates = parsed.filter(item => item && item.name && item.content).map(item => ({
+        id: item.id || generateId(),
+        name: item.name,
+        content: item.content
+      }));
+    }
+  } catch {
+    templates = cloneDefaultTemplates();
+  }
+  saveTemplates();
+}
+
+function saveTemplates() {
+  localStorage.setItem("waFlowTemplates", JSON.stringify(templates));
 }
 
 function normalizePhone(phone) {
@@ -94,6 +160,12 @@ function renderPreview() {
   validCount.textContent = parsed.valid.length;
   duplicateCount.textContent = parsed.duplicates;
   invalidCount.textContent = parsed.invalid.length;
+}
+
+function renderTemplatePreview() {
+  const sample = { phone: "85291234567", name: "Chan Tai Man", company: "ABC Company" };
+  const preview = personalize(templateContentInput.value, sample).trim();
+  templatePreviewBox.textContent = preview || "請輸入模板內容";
 }
 
 function personalize(message, recipient) {
@@ -238,20 +310,163 @@ function exportLogs() {
 }
 
 function loadDemo() {
-  messageInput.value = templates.event;
+  const firstTemplate = templates[0] || DEFAULT_TEMPLATES[0];
+  messageInput.value = firstTemplate.content;
   recipientsInput.value = "85291234567, Chan Tai Man, ABC Company\n85298765432, Wong Siu Ming, XYZ Limited\n85261234567, Lee Ka Yan, Example NGO";
   intervalInput.value = 3;
   saveState();
   renderPreview();
 }
 
-document.querySelectorAll("[data-template]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    messageInput.value = templates[btn.dataset.template];
-    saveState();
-    renderPreview();
+function applyTemplate(id) {
+  const template = templates.find(item => item.id === id);
+  if (!template) return;
+  messageInput.value = template.content;
+  saveState();
+  renderPreview();
+  showPage("senderPage");
+}
+
+function renderTemplates() {
+  renderTemplateButtons();
+  renderTemplateList();
+}
+
+function renderTemplateButtons() {
+  if (!templates.length) {
+    templateRow.innerHTML = `<p class="empty-text">暫時未有模板，請到設定頁新增。</p>`;
+    return;
+  }
+
+  templateRow.innerHTML = templates.map(template => `
+    <button data-template-id="${escapeHtml(template.id)}">${escapeHtml(template.name)}</button>
+  `).join("");
+
+  templateRow.querySelectorAll("[data-template-id]").forEach(btn => {
+    btn.addEventListener("click", () => applyTemplate(btn.dataset.templateId));
   });
+}
+
+function renderTemplateList() {
+  templateCount.textContent = `${templates.length} 個模板`;
+
+  if (!templates.length) {
+    templateList.innerHTML = `<div class="empty-card">暫時未有模板。你可以在右邊新增第一個常用模板。</div>`;
+    return;
+  }
+
+  templateList.innerHTML = templates.map(template => `
+    <article class="template-item">
+      <div>
+        <h3>${escapeHtml(template.name)}</h3>
+        <p>${escapeHtml(template.content).replaceAll("\n", "<br>")}</p>
+      </div>
+      <div class="template-item-actions">
+        <button class="small-btn" data-use-template="${escapeHtml(template.id)}">使用</button>
+        <button class="small-btn" data-edit-template="${escapeHtml(template.id)}">修改</button>
+        <button class="small-btn danger-btn" data-delete-template="${escapeHtml(template.id)}">刪除</button>
+      </div>
+    </article>
+  `).join("");
+
+  templateList.querySelectorAll("[data-use-template]").forEach(btn => {
+    btn.addEventListener("click", () => applyTemplate(btn.dataset.useTemplate));
+  });
+
+  templateList.querySelectorAll("[data-edit-template]").forEach(btn => {
+    btn.addEventListener("click", () => editTemplate(btn.dataset.editTemplate));
+  });
+
+  templateList.querySelectorAll("[data-delete-template]").forEach(btn => {
+    btn.addEventListener("click", () => deleteTemplate(btn.dataset.deleteTemplate));
+  });
+}
+
+function editTemplate(id) {
+  const template = templates.find(item => item.id === id);
+  if (!template) return;
+  templateIdInput.value = template.id;
+  templateNameInput.value = template.name;
+  templateContentInput.value = template.content;
+  templateFormTitle.textContent = "修改模板";
+  saveTemplateBtn.textContent = "更新模板";
+  renderTemplatePreview();
+  templateNameInput.focus();
+}
+
+function deleteTemplate(id) {
+  const template = templates.find(item => item.id === id);
+  if (!template) return;
+  if (!confirm(`確定刪除「${template.name}」？`)) return;
+  templates = templates.filter(item => item.id !== id);
+  saveTemplates();
+  renderTemplates();
+
+  if (templateIdInput.value === id) {
+    resetTemplateForm();
+  }
+}
+
+function saveTemplateFromForm() {
+  const name = templateNameInput.value.trim();
+  const content = templateContentInput.value.trim();
+  const id = templateIdInput.value;
+
+  if (!name) {
+    alert("請輸入模板名稱。");
+    return;
+  }
+
+  if (!content) {
+    alert("請輸入模板內容。");
+    return;
+  }
+
+  if (id) {
+    templates = templates.map(item => item.id === id ? { ...item, name, content } : item);
+  } else {
+    templates.push({ id: generateId(), name, content });
+  }
+
+  saveTemplates();
+  renderTemplates();
+  resetTemplateForm();
+}
+
+function resetTemplateForm() {
+  templateIdInput.value = "";
+  templateNameInput.value = "";
+  templateContentInput.value = "";
+  templateFormTitle.textContent = "新增模板";
+  saveTemplateBtn.textContent = "儲存模板";
+  renderTemplatePreview();
+}
+
+function resetDefaultTemplates() {
+  if (!confirm("確定還原預設模板？現有自訂模板會被覆蓋。")) return;
+  templates = cloneDefaultTemplates();
+  saveTemplates();
+  renderTemplates();
+  resetTemplateForm();
+}
+
+function showPage(pageId) {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.toggle("active", page.id === pageId);
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.page === pageId);
+  });
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => showPage(btn.dataset.page));
 });
+
+goSettingsBtn.addEventListener("click", () => showPage("settingsPage"));
 
 csvInput.addEventListener("change", async (event) => {
   const file = event.target.files[0];
@@ -265,14 +480,19 @@ csvInput.addEventListener("change", async (event) => {
 messageInput.addEventListener("input", () => { saveState(); renderPreview(); });
 recipientsInput.addEventListener("input", () => { saveState(); renderPreview(); });
 intervalInput.addEventListener("input", saveState);
+templateContentInput.addEventListener("input", renderTemplatePreview);
 
 startBtn.addEventListener("click", startSending);
 pauseBtn.addEventListener("click", pauseSending);
 stopBtn.addEventListener("click", stopSending);
 document.getElementById("exportBtn").addEventListener("click", exportLogs);
 document.getElementById("demoBtn").addEventListener("click", loadDemo);
+saveTemplateBtn.addEventListener("click", saveTemplateFromForm);
+resetTemplateFormBtn.addEventListener("click", resetTemplateForm);
+resetDefaultTemplatesBtn.addEventListener("click", resetDefaultTemplates);
+
 document.getElementById("clearBtn").addEventListener("click", () => {
-  if (!confirm("確定清除全部資料？")) return;
+  if (!confirm("確定清除發送頁面資料？模板設定不會被刪除。")) return;
   messageInput.value = "";
   recipientsInput.value = "";
   intervalInput.value = 3;
@@ -283,4 +503,7 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 });
 
 loadState();
+loadTemplates();
+renderTemplates();
 renderPreview();
+renderTemplatePreview();

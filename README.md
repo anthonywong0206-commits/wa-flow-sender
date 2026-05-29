@@ -1,10 +1,17 @@
 # WA Flow Sender
 
-A static, consent-based WhatsApp wa.me message link generator.
+A static, consent-based WhatsApp `wa.me` message link generator.
 
 ## Features
 
-- Two-column dashboard
+- Two-page interface:
+  - Message sending page
+  - Settings / template management page
+- Custom template management:
+  - Add templates
+  - Edit templates
+  - Delete templates
+  - Restore default templates
 - Message editor with variables:
   - `{{name}}`
   - `{{phone}}`
